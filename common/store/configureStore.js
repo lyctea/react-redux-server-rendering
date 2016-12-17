@@ -12,5 +12,12 @@ export default function configureStore(preloadeState) {
         preloadeState,
         applyMiddleware(createLogger({stateTransformer: state => state.toJS()}),thunk)
     );
+
+    if(module.hot){
+        module.hot.accept('../reducers', () => {
+            const  nextRootReducer = require('../reducers').default;
+            store.replaceReducer(nextRootReducer);
+        })
+    }
     return store;
 }
