@@ -1,5 +1,4 @@
-import { fromJS } from 'immutable';
-import { handleAction } from 'redux-actions';
+import { handleActions } from 'redux-actions';
 import { CounterState } from '../constants/models';
 
 import {
@@ -7,7 +6,7 @@ import {
     DECREMENT_COUNT
 } from '../constants/actionTypes';
 
-const counterReducers = handleAction({
+const counterReducers = handleActions({
     INCREMENT_COUNT: (state) => (
         state.set(
             'count',

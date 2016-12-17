@@ -1,1 +1,1 @@
-export * from './counterAction';
+export * from './counterActions';

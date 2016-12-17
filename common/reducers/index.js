@@ -1,7 +1,7 @@
-import { combineReducres } from 'redux-immutable';
+import { combineReducers } from 'redux-immutable';
 import counterReducers from './counterReducers';
 
-const rootReducer = combineReducres({
+const rootReducer = combineReducers({
     counterReducers
 });
 

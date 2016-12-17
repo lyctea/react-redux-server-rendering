@@ -1,4 +1,4 @@
-import React, {Component, PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react'
 
 const Counter = ({
     count,
@@ -19,12 +19,16 @@ const Counter = ({
     </p>
 );
 
-//注意检查propTypes和给定的预设值
-Counter.prototype = {
-    counter: PropTypes.number.isRequired,
+//类型检查
+
+Counter.propTypes = {
+    count: PropTypes.number.isRequired,
     onIncrement: PropTypes.func.isRequired,
     onDecrement: PropTypes.func.isRequired
 }
+
+//默认类型
+
 Counter.defaultProps = {
     count: 0,
     onIncrement: () => {},

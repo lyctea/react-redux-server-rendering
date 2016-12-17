@@ -1,9 +1,3 @@
-/*
-首先用express建立一个port为3000的server,并使用webpack去执行client的代码
-,这里使用handleRender当request进来时(直接访问页面或重新整理)就会去执行fetchCount
-进行处理
-* */
-
 import Express from 'express';
 import qs from 'qs';
 
@@ -22,68 +16,67 @@ import CounterContainer from '../common/containers/CounterContainer';
 
 import { fetchCounter } from '../common/api/counter';
 
-//Express 基于 Node.js 平台，快速、开放、极简的 web 开发框架
 const app = new Express();
 const port = 3000;
 
 function handleRender(req, res) {
-    //模仿实际非同步api处理情形
+    // 模仿实际非同步 api 处理情形
     fetchCounter(apiResult => {
-        //读取api提供的资料(这里我们的api是用setTimeout进行模拟非同步的情况
-        // ),如网址参数有值则取值,如无值则使用api提供的随机值,都没有则为0
+        // 读取 api 提供的资料（这边我们 api 是用 setTimeout 进行模仿非同步状况），若网址参数有值择取值，若无则使用 api 提供的随机值，若都没有则取 0
         const params = qs.parse(req.query);
-        //parseInt 10进制转换
         const counter = parseInt(params.counter, 10) || apiResult || 0;
-        //将initialState转成immutablejs和符合state设计的格式
+        // 将 initialState 转成 immutable 和符合 state 设计的格式
         const initialState = fromJS({
-            count: counter,
-        })
-    });
-    //建立一个redux store
-    const store = configureStore(initialState);
-    //使用renderToString讲component转成string
-    const html = renderToString(
-        <Provider store={store}>
-            <CounterContainer />
-        </Provider>
-    );
-    //从建立的redux store中取得initialState
-    const finalState = store.getState();
-    //将HTML和initaiState传到client-side
-    res.send(renderFullPage(html, finalState));
+            counterReducers: {
+                count: counter,
+            }
+        });
+        // 建立一个 redux store
+        const store = configureStore(initialState);
+        // 使用 renderToString 将 component 转为 string
+        const html = renderToString(
+            <Provider store={store}>
+                <CounterContainer />
+            </Provider>
+        );
+        // 从建立的 redux store 中取得 initialState
+        const finalState = store.getState();
+        // 将 HTML 和 initialState 传到 client-side
+        res.send(renderFullPage(html, finalState));
+    })
 }
 
-//HTML Markup,同时也把preloadedState转成字符串(stringify)传到client-side
-//又称为dehydration(脱水)
+// HTML Markup，同时也把 preloadedState 转成字串（stringify）传到 client-side，又称为 dehydration（脱水）
 function renderFullPage(html, preloadedState) {
     return `
-        <!doctype html>
-        <html>
-            <head>
-                <title>Redux Universal Example</title>
-            </head>
-            <body>
-                <div id="app">${html}</div>
-                <script>
-                    window.__PRELOADED_STATE__ = ${JSON.stringify(preloadedState).replace(/</g, '\\x3c')}
-                </script>
-                <script src="/static/bundle.js"></script>
-            </body>
-        </html>
+    <!doctype html>
+    <html>
+      <head>
+        <title>Redux Universal Example</title>
+      </head>
+      <body>
+        <div id="app">${html}</div>
+        <script>
+          window.__PRELOADED_STATE__ = ${JSON.stringify(preloadedState).replace(/</g, '\\x3c')}
+        </script>
+        <script src="/static/bundle.js"></script>
+      </body>
+    </html>
     `
 }
-//使用middleware与webpack去进行hot module reloading
+
+// 使用 middleware 于 webpack 去进行 hot module reloading 
 const compiler = webpack(webpackConfig);
-app.use(webpackDevMiddleware(compiler, {noInfo: true,publicPath: webpackConfig.output.publicPath}));
+app.use(webpackDevMiddleware(compiler, { noInfo: true, publicPath: webpackConfig.output.publicPath }));
 app.use(webpackHotMiddleware(compiler));
-//每次server接到request都会呼叫handleRender
+// 每次 server 接到 request 都会呼叫 handleRender
 app.use(handleRender);
 
-//监听server状况
+// 监听 server 状况
 app.listen(port, (error) => {
-    if(error){
-        console.error(error);
-    }else{
-        console.info(`==> 🌎  Listening on port ${port}. Open up http://localhost:${port}/ in your browser.`);
+    if (error) {
+        console.error(error)
+    } else {
+        console.info(`==> 🌎  Listening on port ${port}. Open up http://localhost:${port}/ in your browser.`)
     }
 });
